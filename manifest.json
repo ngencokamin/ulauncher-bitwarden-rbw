@@ -1,0 +1,38 @@
+{
+    "api_version": "3",
+    "authors": "Nix Genco-Kamin",
+    "name": "Bitwarden - RBW",
+    "description": "Bitwarden password manager for ulauncher using rbw",
+    "icon": "images/bitwarden.svg",
+    "intructions": "todo",
+    "preferences": [
+        {
+            "id": "search",
+            "type": "keyword",
+            "name": "Search vault",
+            "default_value": "bw"
+        },
+        {
+            "id": "sync",
+            "type": "keyword",
+            "name": "Bitwarden synchronization",
+            "description": "Synchronizes Bitwarden vault with the server",
+            "default_value": "bwsync"
+          },
+          {
+            "id": "lock",
+            "type": "keyword",
+            "name": "Bitwarden lock",
+            "description": "Locks Bitwarden vault",
+            "default_value": "bwlock"
+          },
+          {
+            "id": "max-results",
+            "type": "number",
+            "name": "Maximum number of search results to display",
+            "default_value": "6",
+            "min": "1",
+            "max": "25"
+          }
+    ]
+}
