@@ -4,7 +4,9 @@
     "name": "Bitwarden - RBW",
     "description": "Bitwarden password manager for ulauncher using rbw",
     "icon": "images/bitwarden.svg",
-    "instructions": "todo",
+    "options": {
+        "query_debounce": 0.1
+    },
     "preferences": [
         {
             "id": "search",
