@@ -1,10 +1,10 @@
 {
     "required_api_version": "^2.0.0",
-    "authors": "Nix Genco-Kamin",
+    "developer_name": "Nix Genco-Kamin",
     "name": "Bitwarden - RBW",
     "description": "Bitwarden password manager for ulauncher using rbw",
     "icon": "images/bitwarden.svg",
-    "intructions": "todo",
+    "instructions": "todo",
     "preferences": [
         {
             "id": "search",
