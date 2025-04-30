@@ -1,4 +1,4 @@
-from ulauncher.api import Extension, Result
+from ulauncher.api import Extension
 
 
 class DemoExtension(Extension):
