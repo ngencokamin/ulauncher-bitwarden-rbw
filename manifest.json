@@ -28,11 +28,9 @@
           },
           {
             "id": "max-results",
-            "type": "number",
+            "type": "input",
             "name": "Maximum number of search results to display",
-            "default_value": "6",
-            "min": "1",
-            "max": "25"
+            "default_value": "6"
           }
     ]
 }
