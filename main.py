@@ -88,14 +88,15 @@ class KeywordQueryEventListener(EventListener):
                     on_enter=CopyToClipboardAction(
                         extension.get_pass(data))
                 ))
+                print(query)
                 if query == 'lock':
                     items.insert(0, ExtensionResultItem(
                         icon="images/bitwarden_search_locked.svg",
                         name="Lock",
                         description="Lock Bitwarden vault",
                         on_enter=ExtensionCustomAction({"action": "lock"})))
-                elif query == 'sync':
-                    items.append(ExtensionResultItem(
+                if query == 'sync':
+                    items.insert(0, ExtensionResultItem(
                         icon="images/bitwarden_sync.svg",
                         name="Sync",
                         description="Sync Bitwarden Vault with server",
