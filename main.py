@@ -50,7 +50,7 @@ class KeywordQueryEventListener(EventListener):
         else:
             entries = extension.get_bitwarden_entries()
             result_num = extension.get_max_returns()
-            query = event.get_query() or ""
+            query = event.get_argument() or ""
             print(query)
             print(result_num)
             matching = [s for s in entries if query in s[1] + s[2]]
