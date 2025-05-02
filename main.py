@@ -17,7 +17,15 @@ class BitwardenExtension(Extension):
         self.subscribe(ItemEnterEvent, ItemEnterEventListener())
 
     def get_lock_status(self):
-        return True if subprocess.check_output(['rbw', 'unlocked'], shell=True) else False
+        try:
+            output = subprocess.check_output(['rbw', 'unlocked'], stderr=subprocess.STDOUT)
+        except subprocess.CalledProcessError as e:
+            print(f"Command failed with exit code {e.returncode}: {e.output.decode('utf-8')}")
+        else:
+            if output:  # Check if there's any output
+                print("There is output from the command.")
+            else:
+                print("No output from the command.")
 
 
 class KeywordQueryEventListener(EventListener):
