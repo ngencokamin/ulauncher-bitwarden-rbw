@@ -76,7 +76,6 @@ class KeywordQueryEventListener(EventListener):
             result_num = extension.get_max_returns()
             matching = [s for s in entries if query in s[1] + s[2]]
             # Add matching entries up to number of results allowed
-            print(query)
             for entry in matching[:result_num]:
                 # Set data with entry ID
                 data = {"id": entry[0]}
@@ -95,6 +94,12 @@ class KeywordQueryEventListener(EventListener):
                         name="Lock",
                         description="Lock Bitwarden vault",
                         on_enter=ExtensionCustomAction({"action": "lock"})))
+                elif query == 'sync':
+                    items.insert(0, ExtensionResultItem(
+                        icon="images/bitwarden_sync.svg",
+                        name="Sync",
+                        description="Sync Bitwarden Vault with server",
+                        on_enter=ExtensionCustomAction({"action": "sync"})))
 
         # Return list of items
         return RenderResultListAction(items)
@@ -117,6 +122,8 @@ class ItemEnterEventListener(EventListener):
             return self.unlock_vault(extension)
         elif action == "lock":
             return self.lock_vault()
+        elif action == "sync":
+            return self.sync_vault()
 
     # Run rbw unlock command
     # This creates a pop-up, so it can be left as is
@@ -126,6 +133,10 @@ class ItemEnterEventListener(EventListener):
     # Lock vault using rbw lock command
     def lock_vault(self):
         subprocess.run(['rbw', 'lock'])
+        
+    # Sync vault using rbw sync command
+    def lock_vault(self):
+        subprocess.run(['rbw', 'sync'])
 
 if __name__ == '__main__':
     BitwardenExtension().run()
