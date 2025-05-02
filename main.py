@@ -66,7 +66,7 @@ class KeywordQueryEventListener(EventListener):
                     name=entry[1],
                     description=entry[2],
                     action=CopyToClipboardAction(
-                        data=extension.get_pass(data)
+                        data=extension.get_pass(data))
                 ))
 
         return RenderResultListAction(items)
