@@ -76,6 +76,7 @@ class KeywordQueryEventListener(EventListener):
             result_num = extension.get_max_returns()
             matching = [s for s in entries if query in s[1] + s[2]]
             # Add matching entries up to number of results allowed
+            print(query)
             for entry in matching[:result_num]:
                 # Set data with entry ID
                 data = {"id": entry[0]}
