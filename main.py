@@ -5,6 +5,7 @@ from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
 from ulauncher.api.shared.action.HideWindowAction import HideWindowAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
+from ulauncher.api.shared.action.CopyToClipboardAction import CopyToClipboardAction
 
 import subprocess
 
@@ -34,6 +35,9 @@ class BitwardenExtension(Extension):
 
     def get_max_returns(self):
         return int(self.preferences["max-results"])
+    
+    def get_pass(self, data):
+        return subprocess.check_output(["rbw", "get",data["id"]).decode("utf-8").strip()
 
 class KeywordQueryEventListener(EventListener):
 
@@ -55,10 +59,14 @@ class KeywordQueryEventListener(EventListener):
             print(result_num)
             matching = [s for s in entries if query in s[1] + s[2]]
             for entry in matching[:result_num]:
+                
+                data = {"id": entry[0]}
                 items.append(ExtensionResultItem(
-                    icon="images/bitwarden-search.svg",
+                    icon="images/bitwarden_search.svg",
                     name=entry[1],
-                    description=entry[2]
+                    description=entry[2],
+                    action=CopyToClipboardAction(
+                        data=extension.get_pass(data)
                 ))
 
         return RenderResultListAction(items)
