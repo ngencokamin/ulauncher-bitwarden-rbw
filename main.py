@@ -94,7 +94,7 @@ class KeywordQueryEventListener(EventListener):
                         name="Lock",
                         description="Lock Bitwarden vault",
                         on_enter=ExtensionCustomAction({"action": "lock"})))
-                if query == 'sync':
+                elif query == 'sync':
                     items.insert(0, ExtensionResultItem(
                         icon="images/bitwarden_sync.svg",
                         name="Sync",
@@ -135,7 +135,7 @@ class ItemEnterEventListener(EventListener):
         subprocess.run(['rbw', 'lock'])
         
     # Sync vault using rbw sync command
-    def lock_vault(self):
+    def sync_vault(self):
         subprocess.run(['rbw', 'sync'])
 
 if __name__ == '__main__':
