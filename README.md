@@ -21,13 +21,20 @@ In Ulauncher Preferences, go to the extensions tab and click "Add extension." Pa
 
 After setting up RBW, open Ulauncher and type in "bw" to start the extension. If your vault is locked, you will be prompted to unlock it. Pressing enter on this entry will show a popup asking for your master password.
 
-![locked](/home/nix/.config/Typora/typora-user-images/image-20250502123917987.png)
+![bw-locked](https://github.com/user-attachments/assets/ea7f31ed-e064-443e-8c6b-45dd306a56ef)
+
 
 If your vault is unlocked, it will instead show the first results in RBW with a number of entries equal to the maximum in settings (default 6).
 
-![bw-results](/home/nix/.config/Typora/typora-user-images/image-20250502124412519.png)
+![bw-results](https://github.com/user-attachments/assets/d6b1f404-f2d0-4ff2-8064-ee4c56025c61)
+
 
 Start typing to narrow down your search results, clicking enter to copy the password on a given account.
+
+
+https://github.com/user-attachments/assets/04f464cf-3d7a-43f7-aaf1-c8d48b72511d
+
+
 
 ## Todo
 
