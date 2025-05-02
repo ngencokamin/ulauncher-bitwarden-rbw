@@ -17,7 +17,7 @@ class BitwardenExtension(Extension):
         self.subscribe(ItemEnterEvent, ItemEnterEventListener())
 
     def get_lock_status(self):
-        return True if subprocess.check_output(['rbw', 'unlocked'], shell=True, stdout=subprocess.PIPE) else False
+        return True if subprocess.check_output(['rbw', 'unlocked'], shell=True) else False
 
 
 class KeywordQueryEventListener(EventListener):
