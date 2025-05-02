@@ -15,6 +15,7 @@ class BitwardenExtension(Extension):
         super().__init__()
         self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
         self.subscribe(ItemEnterEvent, ItemEnterEventListener())
+        
 
     def get_lock_status(self):
         try:
@@ -23,7 +24,16 @@ class BitwardenExtension(Extension):
             return True
         else:
             return bool(output)  # Return False if no output, else True
+        
+    def get_bitwarden_entries(self):
+        entries_str = subprocess.check_output(
+                ["rbw", "list", "--fields", "id,name,user"]  # noqa: S607
+            ).decode("utf-8")
+        entries_raw = entries_str.splitlines()
+        return  [entry.split("\t") for entry in entries_raw]
 
+    def get_max_returns(self):
+        return self.preferences(["max-results"])
 
 class KeywordQueryEventListener(EventListener):
 
@@ -37,11 +47,17 @@ class KeywordQueryEventListener(EventListener):
                 name='Unlock Bitwarden',
                 description='Enter passphrase to login/unlock bitwarden vault',
                 on_enter=ExtensionCustomAction({"action": "read_passphrase"})))
-        for i in range(5):
-            items.append(ExtensionResultItem(icon='images/icon.png',
-                                             name='Item %s' % i,
-                                             description='Item description %s' % i,
-                                             on_enter=HideWindowAction()))
+        else:
+            entries = extension.get_bitwarden_entries()
+            result_num = extension.get_max_returns()
+            query = event.get_query() or ""
+            matching = [s for s in entries if query in s[1] + s[2]]
+            for entry in matching[:result_num]:
+                items.append(ExtensionResultItem(
+                    icon="images/bitwarden-search.svg",
+                    name=entry[1],
+                    description=entry[2]
+                ))
 
         return RenderResultListAction(items)
 
