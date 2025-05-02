@@ -94,7 +94,7 @@ class KeywordQueryEventListener(EventListener):
                         name="Lock",
                         description="Lock Bitwarden vault",
                         on_enter=ExtensionCustomAction({"action": "lock"})))
-                elif query == 'sync':
+                if query == 'sync':
                     items.insert(0, ExtensionResultItem(
                         icon="images/bitwarden_sync.svg",
                         name="Sync",
