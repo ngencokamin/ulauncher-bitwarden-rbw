@@ -65,7 +65,7 @@ class KeywordQueryEventListener(EventListener):
                     icon="images/bitwarden_search.svg",
                     name=entry[1],
                     description=entry[2],
-                    action=CopyToClipboardAction(
+                    on_enter=CopyToClipboardAction(
                         extension.get_pass(data))
                 ))
 
