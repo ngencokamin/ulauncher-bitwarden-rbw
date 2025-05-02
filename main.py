@@ -33,6 +33,7 @@ class BitwardenExtension(Extension):
         return  [entry.split("\t") for entry in entries_raw]
 
     def get_max_returns(self):
+        print(self.preferences)
         return int(self.preferences["max-results"])
 
 class KeywordQueryEventListener(EventListener):
@@ -49,6 +50,7 @@ class KeywordQueryEventListener(EventListener):
                 on_enter=ExtensionCustomAction({"action": "read_passphrase"})))
         else:
             entries = extension.get_bitwarden_entries()
+            print(entries)
             result_num = extension.get_max_returns()
             query = event.get_query() or ""
             matching = [s for s in entries if query in s[1] + s[2]]
