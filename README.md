@@ -47,4 +47,4 @@ https://github.com/user-attachments/assets/04f464cf-3d7a-43f7-aaf1-c8d48b72511d
   - [ ] Remove extra keywords from preferences
   - [ ] Add each as arguments after the initial keyword
   - [ ] Trigger rbw commands
-- [ ] Upload to Ulauncher community
+- [X] Upload to Ulauncher community
