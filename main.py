@@ -37,7 +37,7 @@ class BitwardenExtension(Extension):
         return int(self.preferences["max-results"])
     
     def get_pass(self, data):
-        return subprocess.check_output(["rbw", "get",data["id"]).decode("utf-8").strip()
+        return subprocess.check_output(["rbw", "get",data["id"]]).decode("utf-8").strip()
 
 class KeywordQueryEventListener(EventListener):
 
