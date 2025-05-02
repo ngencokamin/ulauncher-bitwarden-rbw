@@ -33,7 +33,7 @@ class BitwardenExtension(Extension):
         return  [entry.split("\t") for entry in entries_raw]
 
     def get_max_returns(self):
-        return self.preferences(["max-results"])
+        return self.preferences["max-results"]
 
 class KeywordQueryEventListener(EventListener):
 
