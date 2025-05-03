@@ -14,11 +14,20 @@
             "name": "Search vault",
             "default_value": "bw"
         },
-          {
+        {
             "id": "max-results",
             "type": "input",
             "name": "Maximum number of search results to display",
             "default_value": "6"
-          }
+        },
+        {
+            "id": "quick-copy",
+            "type": "select",
+            "name": "Quick copy password from results",
+            "description": "Enable to copy password on selecting an entry, disable to show details on select. Set this to false if you want to use TOTP.",
+            "default_value": true,
+            "options": [{"value": true, "text": "True"}, {"value": false, "text": "False"}]
+            
+        }
     ]
 }
