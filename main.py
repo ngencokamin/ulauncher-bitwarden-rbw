@@ -69,7 +69,7 @@ class KeywordQueryEventListener(EventListener):
             # All entries, number of results allowed, and matching logic
             entries = extension.get_bitwarden_entries()
             result_num = extension.get_max_returns()
-            matching = [s for s in entries if query in s[1] + s[2]]
+            matching = [s for s in entries if query in s[1]] 
             # Add matching entries up to number of results allowed
             for entry in matching[:result_num]:
                 # Set data with entry ID
