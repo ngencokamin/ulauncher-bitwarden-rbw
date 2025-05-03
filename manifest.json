@@ -14,20 +14,6 @@
             "name": "Search vault",
             "default_value": "bw"
         },
-        {
-            "id": "sync",
-            "type": "keyword",
-            "name": "Bitwarden synchronization",
-            "description": "Synchronizes Bitwarden vault with the server",
-            "default_value": "bwsync"
-          },
-          {
-            "id": "lock",
-            "type": "keyword",
-            "name": "Bitwarden lock",
-            "description": "Locks Bitwarden vault",
-            "default_value": "bwlock"
-          },
           {
             "id": "max-results",
             "type": "input",

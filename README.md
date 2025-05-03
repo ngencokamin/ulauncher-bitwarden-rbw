@@ -43,8 +43,8 @@ https://github.com/user-attachments/assets/04f464cf-3d7a-43f7-aaf1-c8d48b72511d
   - [x] Filter and limit results dynamically
   - [x] Copy to clipboard on select
 - [x] Write README
-- [ ] Add sync and lock
-  - [ ] Remove extra keywords from preferences
-  - [ ] Add each as arguments after the initial keyword
-  - [ ] Trigger rbw commands
+- [x] Add sync and lock
+  - [x] Remove extra keywords from preferences
+  - [x] Add each as arguments after the initial keyword
+  - [x] Trigger rbw commands
 - [X] Upload to Ulauncher community
