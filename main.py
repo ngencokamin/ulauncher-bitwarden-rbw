@@ -38,7 +38,7 @@ class BitwardenExtension(Extension):
     # Get all bitwarden entries using subprocess and split into arrays containing ID, item name, and username
     def get_bitwarden_entries(self):
         entries_str = subprocess.check_output(
-                ["rbw", "list", "--fields", "id,name,user"]  # noqa: S607
+                ["rbw", "list", "--fields", "id,name,user,folder"]
             ).decode("utf-8")
         entries_raw = entries_str.splitlines()
         return [entry.split("\t") for entry in entries_raw]
@@ -50,6 +50,14 @@ class BitwardenExtension(Extension):
     # Get password for a given item ID
     def get_pass(self, data):
         return subprocess.check_output(["rbw", "get", data["id"]]).decode("utf-8").strip()
+
+    # Process username
+    def username(self, user):
+        return user if user else "No username"
+
+    # Process folder name
+    def folder_name(self, folder):
+        return folder if folder else "No folder"
 
 # Listen for keyword events and queries
 
@@ -79,12 +87,14 @@ class KeywordQueryEventListener(EventListener):
             for entry in matching[:result_num]:
                 # Set data with entry ID
                 data = {"id": entry[0]}
+                user = extension.username(entry[2])
+                folder = extension.folder_name(entry[3])
                 # Add entry with name, icon, and service
                 # Copy to clipboard on enter
                 items.append(ExtensionResultItem(
                     icon="images/bitwarden_search.svg",
                     name=entry[1],
-                    description=entry[2],
+                    description=f"{user} • {folder}",
                     on_enter=CopyToClipboardAction(
                         extension.get_pass(data))
                 ))
