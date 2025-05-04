@@ -48,3 +48,6 @@ https://github.com/user-attachments/assets/04f464cf-3d7a-43f7-aaf1-c8d48b72511d
   - [x] Add each as arguments after the initial keyword
   - [x] Trigger rbw commands
 - [X] Upload to Ulauncher community
+- [ ] Add optional setting to open details page instead of quick copy
+- [ ] OTP support
+- [ ] Add optional icon support
