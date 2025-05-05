@@ -1,26 +1,35 @@
+import gi
+gi.require_version("Notify", "0.7")
+
 # Import ulauncher api tools
 from ulauncher.api.client.Extension import Extension
 from ulauncher.api.client.EventListener import EventListener
-from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent
+from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent, PreferencesUpdateEvent
 from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
 from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
 from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
 from ulauncher.api.shared.action.CopyToClipboardAction import CopyToClipboardAction
+from gi.repository import Notify
 
 # Import subprocess for interacting with rbw
 import subprocess
 
+# Import icon methods
+from icons import Icons
+
+
 # Extension class
-
-
 class BitwardenExtension(Extension):
-
     # Init
     # Subscribe to keyword query and item enter events
     def __init__(self):
         super().__init__()
         self.subscribe(KeywordQueryEvent, KeywordQueryEventListener())
         self.subscribe(ItemEnterEvent, ItemEnterEventListener())
+        self.subscribe(
+            PreferencesUpdateEvent, PreferencesUpdateEventListener()
+        )
+        self.icon = Icons()
 
     # Check if RBW is unlocked and initialized
 
@@ -28,7 +37,7 @@ class BitwardenExtension(Extension):
         try:
             # Get output from running rbw unlocked command
             output = subprocess.check_output(
-                ['rbw', 'unlocked'], stderr=subprocess.STDOUT).decode('utf-8')
+                ["rbw", "unlocked"], stderr=subprocess.STDOUT).decode("utf-8")
         except subprocess.CalledProcessError as e:
             # Return True if RBW is not initialized or unlocked
             return True
@@ -58,10 +67,38 @@ class BitwardenExtension(Extension):
     # Process folder name
     def folder_name(self, folder):
         return folder if folder else "No folder"
+        
+    def sync_vault(self):
+        subprocess.run(["rbw", "sync"])
+        # Check if icons are enabled
+        if self.preferences["icons-enabled"] != "false":
+            # Start sync if enabled
+            if self.icon.check_lock():
+                Notify.Notification.new("Sync partially complete", "Vault sync complete, but icon sync is still running. New entry icons have not be updated.").show()
+            else:
+                Notify.Notification.new("Vault sync complete", "Beginning icon sync.").show()
+                self.icon.sync()
+        else:
+            Notify.Notification.new("Sync complete", "Vault is now up to date.").show()
+            
+    # Get icons on settings change
+    def get_icons(self):
+        if self.icon.check_lock():
+                Notify.Notification.new("Icons already syncing", "Sync is currently in progress.").show()
+        else:
+            Notify.Notification.new("Syncing icons", "Beginning icon sync.").show()
+            self.icon.sync()
+            
+    # Set icon to correct value
+    def set_icon(self, name):
+        if self.preferences["icons-enabled"] == "false":
+            return "images/bitwarden_search.svg"
+        else:
+            return self.icon.retrieve_icon(name)
+        
+            
 
 # Listen for keyword events and queries
-
-
 class KeywordQueryEventListener(EventListener):
 
     # Handle keyword trigger
@@ -73,9 +110,9 @@ class KeywordQueryEventListener(EventListener):
         # Add only entry with prompt to unlock if bitwarden is locked
         if extension.get_lock_status():
             items.append(ExtensionResultItem(
-                icon='images/bitwarden_search_locked.svg',
-                name='Unlock Bitwarden',
-                description='Enter passphrase to login/unlock bitwarden vault',
+                icon="images/bitwarden_search_locked.svg",
+                name="Unlock Bitwarden",
+                description="Enter passphrase to login/unlock bitwarden vault",
                 on_enter=ExtensionCustomAction({"action": "read_passphrase"})))
         # Add entries based on search
         else:
@@ -92,19 +129,19 @@ class KeywordQueryEventListener(EventListener):
                 # Add entry with name, icon, and service
                 # Copy to clipboard on enter
                 items.append(ExtensionResultItem(
-                    icon="images/bitwarden_search.svg",
+                    icon=extension.set_icon(entry[1]),
                     name=entry[1],
                     description=f"{user} • {folder}",
                     on_enter=CopyToClipboardAction(
                         extension.get_pass(data))
                 ))
-            if query == 'lock':
+            if query == "lock":
                 items.insert(0, ExtensionResultItem(
                     icon="images/bitwarden_search_locked.svg",
                     name="Lock",
                     description="Lock Bitwarden vault",
                     on_enter=ExtensionCustomAction({"action": "lock"})))
-            elif query == 'sync':
+            elif query == "sync":
                 items.insert(0, ExtensionResultItem(
                     icon="images/sync.svg",
                     name="Sync",
@@ -123,7 +160,6 @@ class ItemEnterEventListener(EventListener):
         super().__init__()
 
     # On clicking enter, check action from data
-    # TODO: Add sync and lock actions, error handling
     def on_event(self, event, extension):
         data = event.get_data()
         action = data.get("action", None)
@@ -133,20 +169,31 @@ class ItemEnterEventListener(EventListener):
         elif action == "lock":
             return self.lock_vault()
         elif action == "sync":
-            return self.sync_vault()
-
+            return extension.sync_vault()
+        
     # Run rbw unlock command
     # This creates a pop-up, so it can be left as is
     def unlock_vault(self, extension):
-        subprocess.run(['rbw', 'unlock'])
+        subprocess.run(["rbw", "unlock"])
+        extension.get_icons()
 
     # Lock vault using rbw lock command
     def lock_vault(self):
-        subprocess.run(['rbw', 'lock'])
-        
-    # Sync vault using rbw sync command
-    def sync_vault(self):
-        subprocess.run(['rbw', 'sync'])
+        subprocess.run(["rbw", "lock"])
 
-if __name__ == '__main__':
+# Preferences update, handle icons
+class PreferencesUpdateEventListener(EventListener):
+    
+    def __init__(self):
+        super().__init__()
+    
+    def on_event(self, event, extension):
+        if event.id == "icons-enabled" and event.new_value == "true":
+            if extension.get_lock_status():
+                subprocess.run(["rbw", "unlock"])
+            extension.get_icons()
+
+if __name__ == "__main__":
+    Notify.init("Bitwarden - RBW")
     BitwardenExtension().run()
+    Notify.uninit()

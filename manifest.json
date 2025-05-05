@@ -14,11 +14,22 @@
             "name": "Search vault",
             "default_value": "bw"
         },
-          {
+        {
             "id": "max-results",
             "type": "input",
             "name": "Maximum number of search results to display",
             "default_value": "6"
-          }
+        },
+        {
+            "id": "icons-enabled",
+            "type": "select",
+            "name": "Enable icons",
+            "default_value": false,
+            "description": "If enabled, vault entries will be displayed with icons.",
+            "options": [
+                { "value": true, "text": "True" },
+                { "value": false, "text": "False" }
+            ]
+        }
     ]
 }
