@@ -6,8 +6,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from gi.repository import Notify
 
 # Set Icons Dir
-ICON_DIR = "images/icons"
-ICON_DEFAULT = "images/icon_blank.png"
+ICON_DIR = f"{os.path.dirname(os.path.realpath(__file__))}/images/icons"
+ICON_DEFAULT = f"{os.path.dirname(os.path.realpath(__file__))}images/icon_blank.png"
 
 # Sync icons
 class Icons:
@@ -104,13 +104,13 @@ class Icons:
             Notify.Notification.new("Sync complete", "Icons have been synced with Bitwarden.").show()
         finally:
             # Remove lock file
-            if os.path.exists(self.lock_file):
+            if os.path.isfile(self.lock_file):
                 os.remove(self.lock_file)
 
 
     def retrieve_icon(self, entry):
         icon_path = f"{ICON_DIR}/{entry}.png"
-        if os.path.exists(icon_path):
+        if os.path.isfile(icon_path):
             return icon_path
         else:
             return ICON_DEFAULT
