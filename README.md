@@ -34,7 +34,8 @@ Start typing to narrow down your search results, clicking enter to copy the pass
 
 https://github.com/user-attachments/assets/04f464cf-3d7a-43f7-aaf1-c8d48b72511d
 
-
+### Icons
+Changing the enable icons section in preferences to True will enable icon support. This will sync icons with Bitwarden's collection on enabling or running `bw sync`. Note that this takes a second sometimes. It basically just goes through the list of accounts from rbw and requests each icon from Bitwarden's servers.
 
 ## Todo
 
@@ -50,4 +51,4 @@ https://github.com/user-attachments/assets/04f464cf-3d7a-43f7-aaf1-c8d48b72511d
 - [X] Upload to Ulauncher community
 - [ ] Add optional setting to open details page instead of quick copy
 - [ ] OTP support
-- [ ] Add optional icon support
+- [X] Add optional icon support
