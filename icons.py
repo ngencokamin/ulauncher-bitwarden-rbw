@@ -7,15 +7,17 @@ from gi.repository import Notify
 
 # Set Icons Dir
 ICON_DIR = "images/icons"
+ICON_DEFAULT = "images/icon_blank.png"
 
 # Sync icons
-class IconSync:
+class Icons:
     
     def __init__(self):
         self.concurrency = 10
         self.retry_delay = 5
         self.max_retries = 3
-        self.timeout = 10
+        self.timeout = 3
+        
         self.lock_file = "/tmp/bitwarden_icon_sync.lock"
         os.makedirs(ICON_DIR, exist_ok=True)
         
@@ -69,8 +71,7 @@ class IconSync:
 
             # On network related exception/timeout
             except requests.exceptions.RequestException as e:
-                # Wait then try again
-                time.sleep(self.retry_delay)
+                # Try again
                 retries += 1
         
         # Return error if failed after max retries
@@ -105,3 +106,13 @@ class IconSync:
             # Remove lock file
             if os.path.exists(self.lock_file):
                 os.remove(self.lock_file)
+
+
+    def retrieve_icon(self, entry):
+        icon_path = f"{ICON_DIR}/{entry}.png"
+        if os.path.exists(icon_path):
+            return icon_path
+        else:
+            return ICON_DEFAULT
+        
+        

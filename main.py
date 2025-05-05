@@ -15,7 +15,7 @@ from gi.repository import Notify
 import subprocess
 
 # Import icon methods
-from icons import IconSync
+from icons import Icons
 
 
 # Extension class
@@ -29,7 +29,7 @@ class BitwardenExtension(Extension):
         self.subscribe(
             PreferencesUpdateEvent, PreferencesUpdateEventListener()
         )
-        self.icon_sync = IconSync()
+        self.icon = Icons()
 
     # Check if RBW is unlocked and initialized
 
@@ -73,21 +73,28 @@ class BitwardenExtension(Extension):
         # Check if icons are enabled
         if self.preferences["icons-enabled"] != "false":
             # Start sync if enabled
-            if self.icon_sync.check_lock():
+            if self.icon.check_lock():
                 Notify.Notification.new("Sync partially complete", "Vault sync complete, but icon sync is still running. New entry icons have not be updated.").show()
             else:
                 Notify.Notification.new("Vault sync complete", "Beginning icon sync.").show()
-                self.icon_sync.sync()
+                self.icon.sync()
         else:
             Notify.Notification.new("Sync complete", "Vault is now up to date.").show()
             
     # Get icons on settings change
     def get_icons(self):
-        if self.icon_sync.check_lock():
+        if self.icon.check_lock():
                 Notify.Notification.new("Icons already syncing", "Sync is currently in progress.").show()
         else:
             Notify.Notification.new("Syncing icons", "Beginning icon sync.").show()
-            self.icon_sync.sync()
+            self.icon.sync()
+            
+    # Set icon to correct value
+    def set_icon(self, name):
+        if self.preferences["icons-enabled"] == "false":
+            return "images/bitwarden_search.svg"
+        else:
+            return self.icon.retrieve_icon(name)
         
             
 
@@ -122,7 +129,7 @@ class KeywordQueryEventListener(EventListener):
                 # Add entry with name, icon, and service
                 # Copy to clipboard on enter
                 items.append(ExtensionResultItem(
-                    icon="images/bitwarden_search.svg",
+                    icon=extension.set_icon(entry[1]),
                     name=entry[1],
                     description=f"{user} • {folder}",
                     on_enter=CopyToClipboardAction(
