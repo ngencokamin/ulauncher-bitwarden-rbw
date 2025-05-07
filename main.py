@@ -166,7 +166,7 @@ class KeywordQueryEventListener(EventListener):
                 # Set data with entry ID
                 id = entry[0]
                 user = extension.username(entry[2])
-                # folder = extension.folder_name(entry[3])
+                folder = extension.folder_name(entry[3])
 
                 # Check if quick copy is enabled
                 if extension.get_quick_copy_status():
@@ -181,8 +181,7 @@ class KeywordQueryEventListener(EventListener):
                 items.append(ExtensionResultItem(
                     icon=extension.set_icon(entry[1]),
                     name=entry[1],
-                    # description=f"{user} • {folder}",
-                    description=user,
+                    description=f"{user} • {folder}",
                     on_enter=action
                 ))
             if query == "lock":
