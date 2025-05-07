@@ -2,11 +2,27 @@
 
 A [Ulauncher](https://ulauncher.io/) extension to search your [Bitwarden](https://bitwarden.com/) vault and copy passwords to the clipboard using [RBW](https://github.com/doy/rbw). I created this because the only V2.0 Bitwarden extension was too slow for my taste, and the only other Bitwarden extension I found is based on V3.0 API. 
 
+<a href="https://www.buymeacoffee.com/ngencokamin">
+		<img alt="Buy Me A Coffee" src="https://gist.githubusercontent.com/juliomaqueda/1d4399f36b7350d6a73db6a470826076/raw/3c5d5e222f1805c2698227e4eb9c5458a8742b75/buy_me_a_coffee_badge.svg" />
+	</a> 
+
 ## Features
 
-- Search through Bitwarden entries by name and copy to clipboard.
-- Support for self-hosted Bitwarden Vaults.
-- Incredibly fast searching and filtering.
+### Blazing fast search
+
+This extension runs incredibly quickly due to using the `rbw` binary to interface with Bitwarden. Searching through Bitwarden entries is near-instant.
+
+### Full TOTP Support
+
+Has supported for TOTP codes when Quick Copy is turned off. Does not require Bitwarden premium.
+
+### Quick Copy
+
+Optionally, you can choose to turn off the details page an immediately copy your password upon clicking enter. Note that this removes TOTP compatibility.
+
+### Icons
+
+Unofficial icon support separate from rbw. Changing the enable icons section in preferences to True will enable icon support. This will sync icons with Bitwarden's collection upon enabling the settings or running `bw sync`. Note that this takes a second. It basically just goes through the list of accounts from rbw and requests each icon from Bitwarden's servers.
 
 ## Requirements
 
@@ -34,8 +50,13 @@ Start typing to narrow down your search results, clicking enter to copy the pass
 
 https://github.com/user-attachments/assets/04f464cf-3d7a-43f7-aaf1-c8d48b72511d
 
-### Icons
-Changing the enable icons section in preferences to True will enable icon support. This will sync icons with Bitwarden's collection on enabling or running `bw sync`. Note that this takes a second sometimes. It basically just goes through the list of accounts from rbw and requests each icon from Bitwarden's servers.
+
+
+## Credits
+
+Massive thanks to @kbialek for all his work on the original [Bitwarden Search](https://github.com/kbialek/ulauncher-bitwarden) extension. While these extensions behave very differently under the hood, I could not have done this without his work for ulauncher API reference.
+
+
 
 ## Todo
 
@@ -49,6 +70,9 @@ Changing the enable icons section in preferences to True will enable icon suppor
   - [x] Add each as arguments after the initial keyword
   - [x] Trigger rbw commands
 - [X] Upload to Ulauncher community
-- [ ] Add optional setting to open details page instead of quick copy
-- [ ] OTP support
+- [X] Add optional setting to open details page instead of quick copy
+- [X] TOTP support
 - [X] Add optional icon support
+
+- [ ] Update README
+  - [ ] Redo usage section with new screenshots and info to account for the billion new features
