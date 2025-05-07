@@ -55,8 +55,8 @@ https://github.com/user-attachments/assets/04f464cf-3d7a-43f7-aaf1-c8d48b72511d
 ## Credits
 
 Massive thanks to @kbialek for all his work on the original [Bitwarden Search](https://github.com/kbialek/ulauncher-bitwarden) extension. While these extensions behave very differently under the hood, I could not have done this without his work for ulauncher API reference.
-
-
+<a target="_blank" href="https://icons8.com/icon/18734/copy-to-clipboard">Copy to Clipboard</a> icon by <a target="_blank" href="https://icons8.com">Icons8</a>
+Many other icons from [SVGRepo](https://www.svgrepo.com/)
 
 ## Todo
 

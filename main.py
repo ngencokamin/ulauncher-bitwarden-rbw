@@ -255,7 +255,7 @@ class ItemEnterEventListener(EventListener):
         item_name = "{}: ********".format(
             name) if hide else "{}: {}".format(name, value)
         return ExtensionResultItem(
-            icon="images/sync.svg",
+            icon="images/copy.png",
             name=item_name,
             description=desc,
             on_enter=ActionList(copy_notify_action(name, value))
