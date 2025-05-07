@@ -130,8 +130,8 @@ class BitwardenExtension(Extension):
 
     # Format entry to be printed prettily
     def entry_attrs(self, entry):
-        attrs = {"id": entry[0], "Website": entry[1], "username": self.username(
-            entry[2]), "folder": self.folder_name(entry[3]), "password": self.get_pass(entry[0])}
+        attrs = {"Password": self.get_pass(entry[0]), "Username": self.username(
+            entry[2]), "URL": entry[1]}
         totp = self.check_totp(entry)
         if totp:
             attrs["TOTP Code"] = totp
@@ -170,10 +170,10 @@ class KeywordQueryEventListener(EventListener):
 
                 # Check if quick copy is enabled
                 if extension.get_quick_copy_status():
-                    on_enter_callback = ActionList(copy_notify_action(
-                        f"Password for {user}", extension.get_pass(id)))
+                    action = ActionList(copy_notify_action(
+                        f"Password", extension.get_pass(id)))
                 else:
-                    on_enter_callback = ExtensionCustomAction(
+                    action = ExtensionCustomAction(
                         {"action": "activate_entry", "entry": entry}, keep_app_open=True)
 
                 # Add entry with name, icon, and service
@@ -183,7 +183,7 @@ class KeywordQueryEventListener(EventListener):
                     name=entry[1],
                     # description=f"{user} • {folder}",
                     description=user,
-                    on_enter=on_enter_callback
+                    on_enter=action
                 ))
             if query == "lock":
                 items.insert(0, ExtensionResultItem(
@@ -213,16 +213,19 @@ class ItemEnterEventListener(EventListener):
     def on_event(self, event, extension):
         data = event.get_data()
         action = data.get("action", None)
-        # Unlock if read_passphrase action is passed in
-        if action == "read_passphrase":
-            return self.unlock_vault(extension)
-        elif action == "lock":
-            return self.lock_vault()
-        elif action == "sync":
-            return extension.sync_vault()
-        elif action == "activate_entry":
-            entry = data.get("entry")
-            return self.active_entry(extension, entry)
+        # Match action to result
+        match action:
+            case "read_passphrase":
+                return self.unlock_vault(extension)
+            case "lock":
+                return self.lock_vault()
+            case "sync":
+                return extension.sync_vault()
+            case "activate_entry":
+                entry = data.get("entry")
+                return self.active_entry(extension, entry)
+            case "show_notification":
+                Notify.Notification.new(data.get("summary")).show()
 
     # Run rbw unlock command
     # This creates a pop-up, so it can be left as is
@@ -239,15 +242,15 @@ class ItemEnterEventListener(EventListener):
         items = []
         attrs = extension.entry_attrs(entry)
         for name, value in attrs.items():
-            if name == "password":
+            if name == "Password":
                 items.append(self.format_attr(name, value, True))
             else:
-                items.append(self.format_attr(name, value, False))
+                items.append(self.format_attr(name, value))
 
         return RenderResultListAction(items)
 
     # Format attributes
-    def format_attr(self, name, value, hide):
+    def format_attr(self, name, value, hide=False):
         desc = "Copy {} to clipboard".format(name)
         item_name = "{}: ********".format(
             name) if hide else "{}: {}".format(name, value)
