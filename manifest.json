@@ -21,6 +21,17 @@
             "default_value": "6"
         },
         {
+            "id": "quick-copy",
+            "type": "select",
+            "name": "Quick copy",
+            "default_value": false,
+            "description": "If enabled, selecting an entry will copy the password to clipboard instead of opening a details window.",
+            "options": [
+                { "value": true, "text": "True" },
+                { "value": false, "text": "False" }
+            ]
+        },
+        {
             "id": "icons-enabled",
             "type": "select",
             "name": "Enable icons",

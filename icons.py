@@ -7,7 +7,7 @@ from gi.repository import Notify
 
 # Set Icons Dir
 ICON_DIR = f"{os.path.dirname(os.path.realpath(__file__))}/images/icons"
-ICON_DEFAULT = f"{os.path.dirname(os.path.realpath(__file__))}images/icon_blank.png"
+ICON_DEFAULT = f"{os.path.dirname(os.path.realpath(__file__))}/images/icon_blank.png"
 
 # Sync icons
 class Icons:

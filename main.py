@@ -1,24 +1,36 @@
+from icons import Icons
+import subprocess
+from gi.repository import Notify
+from ulauncher.api.shared.action.CopyToClipboardAction import CopyToClipboardAction
+from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
+from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
+from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
+from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent, PreferencesUpdateEvent
+from ulauncher.api.client.EventListener import EventListener
+from ulauncher.api.client.Extension import Extension
+from ulauncher.api.shared.action.ActionList import ActionList
 import gi
 gi.require_version("Notify", "0.7")
 
-# Import ulauncher api tools
-from ulauncher.api.client.Extension import Extension
-from ulauncher.api.client.EventListener import EventListener
-from ulauncher.api.shared.event import KeywordQueryEvent, ItemEnterEvent, PreferencesUpdateEvent
-from ulauncher.api.shared.item.ExtensionResultItem import ExtensionResultItem
-from ulauncher.api.shared.action.RenderResultListAction import RenderResultListAction
-from ulauncher.api.shared.action.ExtensionCustomAction import ExtensionCustomAction
-from ulauncher.api.shared.action.CopyToClipboardAction import CopyToClipboardAction
-from gi.repository import Notify
+# Notify and copy to clipboard
 
-# Import subprocess for interacting with rbw
-import subprocess
 
-# Import icon methods
-from icons import Icons
-
+def copy_notify_action(name, value):
+    return [
+        ExtensionCustomAction(
+            {
+                "action": "show_notification",
+                "summary": "{} copied to clipboard.".format(
+                    name
+                ),
+            }
+        ),
+        CopyToClipboardAction(value),
+    ]
 
 # Extension class
+
+
 class BitwardenExtension(Extension):
     # Init
     # Subscribe to keyword query and item enter events
@@ -47,8 +59,8 @@ class BitwardenExtension(Extension):
     # Get all bitwarden entries using subprocess and split into arrays containing ID, item name, and username
     def get_bitwarden_entries(self):
         entries_str = subprocess.check_output(
-                ["rbw", "list", "--fields", "id,name,user,folder"]
-            ).decode("utf-8")
+            ["rbw", "list", "--fields", "id,name,user,folder"]
+        ).decode("utf-8")
         entries_raw = entries_str.splitlines()
         return [entry.split("\t") for entry in entries_raw]
 
@@ -57,8 +69,8 @@ class BitwardenExtension(Extension):
         return int(self.preferences["max-results"])
 
     # Get password for a given item ID
-    def get_pass(self, data):
-        return subprocess.check_output(["rbw", "get", data["id"]]).decode("utf-8").strip()
+    def get_pass(self, id):
+        return subprocess.check_output(["rbw", "get", id]).decode("utf-8").strip()
 
     # Process username
     def username(self, user):
@@ -67,38 +79,67 @@ class BitwardenExtension(Extension):
     # Process folder name
     def folder_name(self, folder):
         return folder if folder else "No folder"
-        
+
     def sync_vault(self):
         subprocess.run(["rbw", "sync"])
         # Check if icons are enabled
         if self.preferences["icons-enabled"] != "false":
             # Start sync if enabled
             if self.icon.check_lock():
-                Notify.Notification.new("Sync partially complete", "Vault sync complete, but icon sync is still running. New entry icons have not be updated.").show()
+                Notify.Notification.new(
+                    "Sync partially complete", "Vault sync complete, but icon sync is still running. New entry icons have not be updated.").show()
             else:
-                Notify.Notification.new("Vault sync complete", "Beginning icon sync.").show()
+                Notify.Notification.new(
+                    "Vault sync complete", "Beginning icon sync.").show()
                 self.icon.sync()
         else:
-            Notify.Notification.new("Sync complete", "Vault is now up to date.").show()
-            
+            Notify.Notification.new(
+                "Sync complete", "Vault is now up to date.").show()
+
     # Get icons on settings change
     def get_icons(self):
         if self.icon.check_lock():
-                Notify.Notification.new("Icons already syncing", "Sync is currently in progress.").show()
+            Notify.Notification.new(
+                "Icons already syncing", "Sync is currently in progress.").show()
         else:
-            Notify.Notification.new("Syncing icons", "Beginning icon sync.").show()
+            Notify.Notification.new(
+                "Syncing icons", "Beginning icon sync.").show()
             self.icon.sync()
-            
+
     # Set icon to correct value
     def set_icon(self, name):
         if self.preferences["icons-enabled"] == "false":
             return "images/bitwarden_search.svg"
         else:
             return self.icon.retrieve_icon(name)
-        
-            
+
+    # Check if quick copy is enabled
+    def get_quick_copy_status(self):
+        return bool(self.preferences["quick-copy"] == "true")
+
+    # Check if entry has totp
+    def check_totp(self, entry):
+        try:
+            # Try to get code from entry name and user
+            code = subprocess.check_output(
+                ["rbw", "code", entry[1], entry[2]], stderr=subprocess.STDOUT).decode("utf-8")
+            return code
+        except subprocess.CalledProcessError as e:
+            # Return None if no code is found
+            return None
+
+    # Format entry to be printed prettily
+    def entry_attrs(self, entry):
+        attrs = {"id": entry[0], "Website": entry[1], "username": self.username(
+            entry[2]), "folder": self.folder_name(entry[3]), "password": self.get_pass(entry[0])}
+        totp = self.check_totp(entry)
+        if totp:
+            attrs["TOTP Code"] = totp
+        return attrs
 
 # Listen for keyword events and queries
+
+
 class KeywordQueryEventListener(EventListener):
 
     # Handle keyword trigger
@@ -119,21 +160,30 @@ class KeywordQueryEventListener(EventListener):
             # All entries, number of results allowed, and matching logic
             entries = extension.get_bitwarden_entries()
             result_num = extension.get_max_returns()
-            matching = [s for s in entries if query in s[1]] 
+            matching = [s for s in entries if query.lower() in s[1].lower()]
             # Add matching entries up to number of results allowed
             for entry in matching[:result_num]:
                 # Set data with entry ID
-                data = {"id": entry[0]}
+                id = entry[0]
                 user = extension.username(entry[2])
-                folder = extension.folder_name(entry[3])
+                # folder = extension.folder_name(entry[3])
+
+                # Check if quick copy is enabled
+                if extension.get_quick_copy_status():
+                    on_enter_callback = ActionList(copy_notify_action(
+                        f"Password for {user}", extension.get_pass(id)))
+                else:
+                    on_enter_callback = ExtensionCustomAction(
+                        {"action": "activate_entry", "entry": entry}, keep_app_open=True)
+
                 # Add entry with name, icon, and service
                 # Copy to clipboard on enter
                 items.append(ExtensionResultItem(
                     icon=extension.set_icon(entry[1]),
                     name=entry[1],
-                    description=f"{user} • {folder}",
-                    on_enter=CopyToClipboardAction(
-                        extension.get_pass(data))
+                    # description=f"{user} • {folder}",
+                    description=user,
+                    on_enter=on_enter_callback
                 ))
             if query == "lock":
                 items.insert(0, ExtensionResultItem(
@@ -170,7 +220,10 @@ class ItemEnterEventListener(EventListener):
             return self.lock_vault()
         elif action == "sync":
             return extension.sync_vault()
-        
+        elif action == "activate_entry":
+            entry = data.get("entry")
+            return self.active_entry(extension, entry)
+
     # Run rbw unlock command
     # This creates a pop-up, so it can be left as is
     def unlock_vault(self, extension):
@@ -181,17 +234,44 @@ class ItemEnterEventListener(EventListener):
     def lock_vault(self):
         subprocess.run(["rbw", "lock"])
 
+    # Show entry details
+    def active_entry(self, extension, entry):
+        items = []
+        attrs = extension.entry_attrs(entry)
+        for name, value in attrs.items():
+            if name == "password":
+                items.append(self.format_attr(name, value, True))
+            else:
+                items.append(self.format_attr(name, value, False))
+
+        return RenderResultListAction(items)
+
+    # Format attributes
+    def format_attr(self, name, value, hide):
+        desc = "Copy {} to clipboard".format(name)
+        item_name = "{}: ********".format(
+            name) if hide else "{}: {}".format(name, value)
+        return ExtensionResultItem(
+            icon="images/sync.svg",
+            name=item_name,
+            description=desc,
+            on_enter=ActionList(copy_notify_action(name, value))
+        )
+
 # Preferences update, handle icons
+
+
 class PreferencesUpdateEventListener(EventListener):
-    
+
     def __init__(self):
         super().__init__()
-    
+
     def on_event(self, event, extension):
         if event.id == "icons-enabled" and event.new_value == "true":
             if extension.get_lock_status():
                 subprocess.run(["rbw", "unlock"])
             extension.get_icons()
+
 
 if __name__ == "__main__":
     Notify.init("Bitwarden - RBW")
