@@ -13,10 +13,10 @@ ICON_DEFAULT = f"{os.path.dirname(os.path.realpath(__file__))}/images/icon_blank
 class Icons:
     
     def __init__(self):
-        self.concurrency = 10
-        self.retry_delay = 5
-        self.max_retries = 3
-        self.timeout = 3
+        self.concurrency = 15
+        self.retry_delay = 3
+        self.max_retries = 2
+        self.timeout = 2
         
         self.lock_file = "/tmp/bitwarden_icon_sync.lock"
         os.makedirs(ICON_DIR, exist_ok=True)
@@ -41,13 +41,10 @@ class Icons:
         # Run until max retries are hit
         while retries < self.max_retries:
             try:
-                # Make get request + fetch status code
+                # Make get request + fetch status code with timeout
                 response = requests.get(url, timeout=self.timeout)
                 status = response.status_code
                 content_type = response.headers.get("Content-Type", "")
-                
-                if "image" not in content_type:
-                    return f"Invalid content for {entry}: content-type {content_type}"
                 
                 # On rate limit
                 if status == 429:
@@ -58,24 +55,35 @@ class Icons:
                     # Increase retries by one and try again
                     retries += 1
                     continue
-
+                
                 # For errors like 404, 500, no need to retry
                 if status != 200:  
                     # Return status code and name of icon
                     return f"Error fetching icon for {entry}: status {status}"
+                
+                # Fail immediately if response is not image
+                if "image" not in content_type:
+                    return f"Invalid content for {entry}: content-type {content_type}"
 
                 # Save the icon on valid response
                 with open(icon_path, "wb") as f:
                     f.write(response.content)
                     return f"Icon saved for entry {entry}"
 
-            # On network related exception/timeout
-            except requests.exceptions.RequestException as e:
+            # Retry on timeout
+            except requests.exceptions.Timeout as e:
                 # Try again
                 retries += 1
+                err = e
+                continue
+            
+            # Don't retry on other exceptions
+            except requests.exceptions.RequestException as e:
+                return f"Request failed for {entry}: {e}"
+            
         
         # Return error if failed after max retries
-        return f"Failed to fetch icon for {entry} after {self.max_retries} retries"
+        return f"Failed to fetch icon for {entry} after {self.max_retries} retries, error {err}"
     
     # Get icons if enabled in preferences
     def sync(self):
