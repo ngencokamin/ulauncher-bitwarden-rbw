@@ -299,7 +299,6 @@ class PreferencesUpdateEventListener(EventListener):
     # When preferences are updated
     def on_event(self, event, extension):
         # If icons-enabled is changed to "True"
-        print(event.old_value, event.new_value)
         if (event.id == "icons-enabled" and
             event.new_value != event.old_value and
             event.new_value == "true"):
